@@ -1,0 +1,142 @@
+type Course = record {
+  id : nat64;
+  status : CourseStatus;
+  title : text;
+  featured : bool;
+  enrolled_count : nat32;
+  content_link : text;
+  description : text;
+  created_at : nat64;
+  category : text;
+  price : nat64;
+  educator : principal;
+};
+type CourseStatus = variant { Draft; Archived; Published };
+type Discussion = record {
+  id : nat64;
+  upvotes : vec principal;
+  title : text;
+  content : text;
+  responses : vec DiscussionResponse;
+  created_at : nat64;
+  course_id : nat64;
+  author : principal;
+};
+type DiscussionResponse = record {
+  id : nat64;
+  upvotes : vec principal;
+  content : text;
+  created_at : nat64;
+  author : principal;
+};
+type Enrollment = record {
+  learner : principal;
+  completed : bool;
+  enrolled_at : nat64;
+  course_id : nat64;
+  progress : nat8;
+  completed_at : opt nat64;
+};
+type Result = variant { Ok; Err : ScholarError };
+type Result_1 = variant { Ok : Course; Err : ScholarError };
+type Result_2 = variant { Ok : Discussion; Err : ScholarError };
+type Result_3 = variant { Ok : Enrollment; Err : ScholarError };
+type Result_4 = variant { Ok : User; Err : ScholarError };
+type ScholarError = variant {
+  UserAlreadyExists;
+  UsernameAlreadyTaken;
+  InvalidInput;
+  NotEnrolled;
+  Unauthorized;
+  AlreadyEnrolled;
+  CourseNotFound;
+  UserNotFound;
+  InsufficientFunds;
+};
+type Transaction = record {
+  id : nat64;
+  status : text;
+  transaction_type : TransactionType;
+  from_user : principal;
+  to_user : principal;
+  description : text;
+  timestamp : nat64;
+  amount : nat64;
+};
+type TransactionType = variant {
+  Reward;
+  CoursePayment;
+  TokenTransfer;
+  CourseSale;
+};
+type User = record {
+  bio : opt text;
+  "principal" : principal;
+  active : bool;
+  username : text;
+  interests : vec text;
+  avatar_url : opt text;
+  role : UserRole;
+  created_at : nat64;
+  website : opt text;
+  token_balance : nat64;
+  location : opt text;
+  reputation_score : nat32;
+  completed_courses : vec nat64;
+};
+type UserProfile = record {
+  bio : opt text;
+  interests : vec text;
+  avatar_url : opt text;
+  website : opt text;
+  location : opt text;
+};
+type UserRole = variant { PendingEducator; Educator; Learner };
+service : () -> {
+  activate_user : (principal) -> (Result);
+  add_admin : (principal) -> (Result);
+  add_discussion_reply : (nat64, text) -> (Result);
+  add_discussion_response : (nat64, text) -> (Result);
+  approve_course : (nat64) -> (Result);
+  approve_educator : (principal) -> (Result);
+  create_course : (text, text, text, nat64, text) -> (Result_1);
+  create_discussion : (nat64, text, text) -> (Result_2);
+  demote_user : (principal) -> (Result);
+  dismiss_report : (nat64) -> (Result);
+  enroll_in_course : (nat64) -> (Result_3);
+  feature_course : (nat64) -> (Result);
+  get_all_users : () -> (vec User) query;
+  get_course : (nat64) -> (Result_1) query;
+  get_courses : () -> (vec Course) query;
+  get_courses_by_creator : (principal) -> (vec Course) query;
+  get_courses_by_educator : (principal) -> (vec Course) query;
+  get_current_user : () -> (Result_4) query;
+  get_discussion_details : (nat64) -> (Result_2) query;
+  get_discussions : () -> (vec Discussion) query;
+  get_discussions_for_course : (nat64) -> (vec Discussion) query;
+  get_enrollments : (principal) -> (vec Enrollment) query;
+  get_pending_educators : () -> (vec User) query;
+  get_platform_stats : () -> (nat64, nat64, nat64, nat64) query;
+  get_recent_transactions : () -> (vec Transaction) query;
+  get_reports : () -> (vec record { nat64; text; text; text; nat64 }) query;
+  get_user : (principal) -> (Result_4) query;
+  get_user_balance : (principal) -> (nat64) query;
+  get_user_courses : (principal) -> (vec Course) query;
+  get_user_profile : (principal) -> (Result_4) query;
+  get_user_reputation_history : (principal) -> (
+      vec record { text; int32; nat64 },
+    ) query;
+  get_user_transactions : (principal) -> (vec Transaction) query;
+  hide_course : (nat64) -> (Result);
+  like_discussion : (nat64) -> (Result);
+  promote_user : (principal) -> (Result);
+  register_user : (text, UserRole) -> (Result_4);
+  reject_course : (nat64) -> (Result);
+  resolve_report : (nat64) -> (Result);
+  suspend_user : (principal) -> (Result);
+  transfer_tokens : (principal, nat64) -> (Result);
+  update_progress : (nat64, nat8) -> (Result);
+  update_user_profile : (UserProfile) -> (Result_4);
+  upvote_discussion : (nat64) -> (Result);
+  upvote_response : (nat64, nat64) -> (Result);
+}
