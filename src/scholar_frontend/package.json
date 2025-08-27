@@ -8,6 +8,8 @@
     "start": "vite --port 3000",
     "prebuild": "dfx generate",
     "build": "tsc && vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "@vitejs/plugin-react": "^4.0.1",
     "autoprefixer": "^10.4.14",
     "dotenv": "^16.3.1",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.27",
     "prettier": "^3.0.0",
     "sass": "^1.63.6",
