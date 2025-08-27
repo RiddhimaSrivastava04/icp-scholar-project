@@ -7,8 +7,23 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 
 export default defineConfig({
+  base: "./",
   build: {
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      if (hostType === 'js') {
+        return `./${filename}`;
+      } else {
+        return filename;
+      }
+    },
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -38,7 +53,16 @@ export default defineConfig({
           new URL("../declarations", import.meta.url)
         ),
       },
+      {
+        find: "@",
+        replacement: fileURLToPath(
+          new URL("./src", import.meta.url)
+        ),
+      },
     ],
     dedupe: ['@dfinity/agent'],
+  },
+  define: {
+    global: "globalThis",
   },
 });
